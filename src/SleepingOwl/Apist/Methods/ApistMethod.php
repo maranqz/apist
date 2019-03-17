@@ -1,8 +1,8 @@
 <?php namespace SleepingOwl\Apist\Methods;
 
-use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Psr7\Response;
 use SleepingOwl\Apist\Apist;
 use SleepingOwl\Apist\DomCrawler\Crawler;
 use SleepingOwl\Apist\Selectors\ApistSelector;
@@ -34,7 +34,7 @@ class ApistMethod
 	 */
 	protected $crawler;
 	/**
-	 * @var \GuzzleHttp\Message\Response
+	 * @var Response
 	 */
 	protected $response;
 
@@ -64,11 +64,11 @@ class ApistMethod
 			$this->makeRequest($arguments);
 		} catch (ConnectException $e)
 		{
-			$url = $e->getRequest()->getUrl();
+			$url = $e->getRequest()->getUri();
 			return $this->errorResponse($e->getCode(), $e->getMessage(), $url);
 		} catch (RequestException $e)
 		{
-			$url = $e->getRequest()->getUrl();
+			$url = $e->getRequest()->getUri();
 			$status = $e->getCode();
 			$response = $e->getResponse();
 			$reason = $e->getMessage();
@@ -89,11 +89,8 @@ class ApistMethod
 	 */
 	protected function makeRequest($arguments = [])
 	{
-		$defaults = $this->getDefaultOptions();
-		$arguments = array_merge($defaults, $arguments);
 		$client = $this->resource->getGuzzle();
-		$request = $client->createRequest($this->getMethod(), $this->url, $arguments);
-		$response = $client->send($request);
+        $response = $client->request($this->getMethod(), $this->url, $arguments);
 		$this->setResponse($response);
 		$this->setContent((string)$response->getBody());
 	}
@@ -193,16 +190,6 @@ class ApistMethod
 	}
 
 	/**
-	 * @return array
-	 */
-	protected function getDefaultOptions()
-	{
-		return [
-			'cookies' => true
-		];
-	}
-
-	/**
 	 * @return Apist
 	 */
 	public function getResource()
@@ -211,7 +198,7 @@ class ApistMethod
 	}
 
 	/**
-	 * @return \GuzzleHttp\Message\Response
+	 * @return Response
 	 */
 	public function getResponse()
 	{
@@ -219,7 +206,7 @@ class ApistMethod
 	}
 
 	/**
-	 * @param \GuzzleHttp\Message\Response $response
+	 * @param Response $response
 	 */
 	public function setResponse($response)
 	{

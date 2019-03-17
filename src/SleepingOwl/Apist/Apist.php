@@ -5,7 +5,6 @@ use SleepingOwl\Apist\Methods\ApistMethod;
 use SleepingOwl\Apist\Selectors\ApistFilter;
 use SleepingOwl\Apist\Selectors\ApistSelector;
 use SleepingOwl\Apist\Yaml\YamlApist;
-use Symfony\Component\DomCrawler\Crawler;
 
 abstract class Apist
 {
@@ -35,7 +34,8 @@ abstract class Apist
 	 */
 	function __construct($options = [])
 	{
-		$options['base_url'] = $this->getBaseUrl();
+        $options = array_merge($this->getDefaultOptions(), $options);
+		$options['base_uri'] = $this->getBaseUrl();
 		$this->guzzle = new Client($options);
 	}
 
@@ -135,6 +135,16 @@ abstract class Apist
 		$this->suppressExceptions = $suppressExceptions;
 	}
 
+    /**
+     * @return array
+     */
+    protected function getDefaultOptions()
+    {
+        return [
+            'cookies' => true
+        ];
+    }
+
 	/**
 	 * @param $httpMethod
 	 * @param $url
@@ -149,6 +159,7 @@ abstract class Apist
 		$this->currentMethod->setMethod($httpMethod);
 		$result = $this->currentMethod->get($options);
 		$this->currentMethod = null;
+
 		return $result;
 	}
 
