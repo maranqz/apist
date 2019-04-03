@@ -1,5 +1,5 @@
 {
-    "name": "sleeping-owl/apist",
+    "name": "maranqz/apist",
     "description": "Package to provide api-like access to foreign sites based on html parsing",
 	"homepage": "http://sleeping-owl-apist.gopagoda.com",
 	"license": "MIT",
